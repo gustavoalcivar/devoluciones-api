@@ -3,22 +3,25 @@ from jsonschema.exceptions import ValidationError
 from jsonschema.exceptions import SchemaError
 
 user_schema = {
-    "type": "object",
-    "properties": {
-        "name": {
-            "type": "string",
+    'type': 'object',
+    'properties': {
+        'user': {
+            'type': 'string',
+            'minLength': 4
         },
-        "email": {
-            "type": "string",
-            "format": "email"
+        'password': {
+            'type': 'string',
+            'minLength': 5
         },
-        "password": {
-            "type": "string",
-            "minLength": 5
+        'role': {
+            'type': 'string'
+        },
+        'active': {
+            'type': 'boolean'
         }
     },
-    "required": ["email", "password"],
-    "additionalProperties": False
+    'required': ['user', 'password'],
+    'additionalProperties': False
 }
 
 

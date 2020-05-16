@@ -1,4 +1,4 @@
-# pip3 install flask
+# dependencias instaladas con pip: flask, jsonschema, flask_bcrypt, flask_jwt_extended, flask_pymongo, dnspython, gunicorn
 import os
 import sys
 from flask import jsonify, request
