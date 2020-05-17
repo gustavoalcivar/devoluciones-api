@@ -1,5 +1,8 @@
 modules/app/__pycache__
 modules/app/controllers/__pycache__
 modules/app/schemas/__pycache__
+modules/app/decorators/__pycache__
+modules/app/core/__pycache__
 modules/logger/__pycache__
+uploads/
 output.log

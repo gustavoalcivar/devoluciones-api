@@ -1,9 +1,9 @@
 import os
 from flask import request, jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required
 from app import app, mongo, flask_bcrypt, jwt
 from app.schemas.user import validate_user
-from functools import wraps
+from app.controllers.validators import admin_require
 import logger
 
 ROOT_PATH = os.environ.get('ROOT_PATH')
@@ -12,16 +12,6 @@ LOG = logger.get_root_logger(__name__, filename=os.path.join(ROOT_PATH, 'output.
 @jwt.unauthorized_loader
 def unauthorized_response(callback):
     return jsonify({'ok': False, 'message': 'Missing Authorization Header'}), 401
-
-def admin_require(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if mongo.db.users.find_one({'user': get_jwt_identity()['user']})['role'] == 'ADMIN_ROLE':
-            return f(*args, **kwargs)
-        else:
-            return jsonify({'ok': False, 'message': 'Unauthorizaed user'}), 401
-
-    return wrap
 
 @app.route('/auth', methods=['POST'])
 def auth_user():
@@ -55,6 +45,10 @@ def register():
         return jsonify({'ok': False, 'message': 'Bad request parameters: {}'.format(data['message'])}), 400
 
     data = data['data']
+    user = mongo.db.users.find_one({'user': data['user']})
+    if user:
+        return jsonify({'ok': False, 'message': 'The user already exists'}), 400
+    
     data['password'] = flask_bcrypt.generate_password_hash(data['password'])
     data['role'] = 'USER_ROLE'
     data['active'] = False
@@ -78,4 +72,3 @@ def user():
         for user in data:
             users.append({'user': user['user'], 'role': user['role'], 'active': user['active']})
         return jsonify({'ok': True, 'data': users}), 200
-
