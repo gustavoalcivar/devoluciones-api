@@ -1,4 +1,4 @@
-# dependencias instaladas con pip: flask, jsonschema, flask_bcrypt, flask_jwt_extended, flask_pymongo, dnspython, gunicorn
+# dependencias instaladas con pip: flask, jsonschema, flask_bcrypt, flask_jwt_extended, flask_pymongo, dnspython, gunicorn, flask-cors
 import os
 import sys
 from flask import jsonify, request
@@ -16,7 +16,7 @@ LOG = logger.get_root_logger(os.environ.get('ROOT_LOGGER', 'root'), filename=os.
 try:
 	PORT = os.environ['PORT'] # Lee las variables de entorno de Heroku
 except:
-	PORT = 3000
+	PORT = 4000
 
 try:
     os.environ['FLASK_ENV'] = os.environ['FLASK_ENV']
@@ -25,8 +25,10 @@ except:
 
 if os.environ['FLASK_ENV'] == 'development':
     app.config['DEBUG'] = True
+    host = '0.0.0.0'
 else:
     app.config['DEBUG'] = False
+    host = os.environ['FLASK_HOST']
 
 @app.errorhandler(404)
 def not_found(error):
@@ -39,4 +41,4 @@ def index():
 
 if __name__ == '__main__':
     LOG.info('running environment: %s', os.environ.get('FLASK_ENV'))
-    app.run(port=int(PORT)) # Run the app
+    app.run(host=host, port=int(PORT)) # Run the app

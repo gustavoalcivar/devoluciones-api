@@ -13,7 +13,7 @@ LOG = logger.get_root_logger(__name__, filename=os.path.join(ROOT_PATH, 'output.
 def unauthorized_response(callback):
     return jsonify({'ok': False, 'message': 'Missing Authorization Header'}), 401
 
-@app.route('/auth', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def auth_user():
     try:
         data = validate_user(request.get_json())
@@ -21,8 +21,8 @@ def auth_user():
             return jsonify({'ok': False, 'message': 'Bad request parameters: {}'.format(data['message'])}), 400
 
         data = data['data']
-        user = mongo.db.users.find_one({'user': data['user']}, {'_id': False})
-        if not user and flask_bcrypt.check_password_hash(user['password'], data['password']):
+        user = mongo.db.users.find_one({'user': data['user'].upper()}, {'_id': False, 'role': False})
+        if not user or not flask_bcrypt.check_password_hash(user['password'], data['password']):
             return jsonify({'ok': False, 'message': 'Invalid user or password'}), 401
 
         del user['password']
@@ -30,6 +30,7 @@ def auth_user():
         if not user['active']:
             return jsonify({'ok': False, 'message': 'Invalid user or password'}), 401
 
+        del user['active']
         access_token = create_access_token(identity=data)
         refresh_token = create_refresh_token(identity=data)
         user['token'] = access_token
@@ -45,6 +46,7 @@ def register():
         return jsonify({'ok': False, 'message': 'Bad request parameters: {}'.format(data['message'])}), 400
 
     data = data['data']
+    data['user'] = data['user'].upper()
     user = mongo.db.users.find_one({'user': data['user']})
     if user:
         return jsonify({'ok': False, 'message': 'The user already exists'}), 400
