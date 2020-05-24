@@ -23,12 +23,12 @@ def auth_user():
         data = data['data']
         user = mongo.db.users.find_one({'user': data['user'].upper()}, {'_id': False, 'role': False})
         if not user or not flask_bcrypt.check_password_hash(user['password'], data['password']):
-            return jsonify({'ok': False, 'message': 'Invalid user or password'}), 401
+            return jsonify({'ok': False, 'message': 'Usuario o contraseña incorrectos'}), 401
 
         del user['password']
         del data['password']
         if not user['active']:
-            return jsonify({'ok': False, 'message': 'Invalid user or password'}), 401
+            return jsonify({'ok': False, 'message': 'Usuario o contraseña incorrectos'}), 401
 
         del user['active']
         access_token = create_access_token(identity=data)
@@ -37,7 +37,7 @@ def auth_user():
         user['refresh'] = refresh_token
         return jsonify({'ok': True, 'data': user}), 200
     except:
-        return jsonify({'ok': False, 'message': 'Invalid user or password'}), 401
+        return jsonify({'ok': False, 'message': 'Usuario o contraseña incorrectos'}), 401
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -49,13 +49,13 @@ def register():
     data['user'] = data['user'].upper()
     user = mongo.db.users.find_one({'user': data['user']})
     if user:
-        return jsonify({'ok': False, 'message': 'The user already exists'}), 400
+        return jsonify({'ok': False, 'message': 'El usuario {} ya existe'.format(data['user'])}), 400
     
     data['password'] = flask_bcrypt.generate_password_hash(data['password'])
     data['role'] = 'USER_ROLE'
-    data['active'] = False
+    data['active'] = True
     mongo.db.users.insert_one(data)
-    return jsonify({'ok': True, 'message': 'User created successfully!'}), 201
+    return jsonify({'ok': True, 'message': 'Usuario creado exitosamente!'}), 201
 
 @app.route('/refresh', methods=['POST'])
 @jwt_refresh_token_required

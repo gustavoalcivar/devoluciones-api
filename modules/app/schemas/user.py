@@ -7,11 +7,11 @@ user_schema = {
     'properties': {
         'user': {
             'type': 'string',
-            'minLength': 4
+            'minLength': 1
         },
         'password': {
             'type': 'string',
-            'minLength': 5
+            'minLength': 1
         },
         'role': {
             'type': 'string'

@@ -7,6 +7,6 @@ def admin_require(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         if mongo.db.users.find_one({'user': get_jwt_identity()['user'].upper()})['role'] != 'ADMIN_ROLE':
-            return jsonify({'ok': False, 'message': 'Unauthorizaed user'}), 403
+            return jsonify({'ok': False, 'message': 'Usuario no autorizado'}), 403
         return f(*args, **kwargs)
     return wrap

@@ -22,7 +22,7 @@ def devolucion():
         if tipo == 'poranio':
             # Suma total de cada año
             pipeline = [
-                {'$group': {'_id': '$anio', 'total': {'$sum': '$bandejas'}}},
+                {'$group': {'_id': '$anio', 'dato': {'$sum': '$bandejas'}}},
                 {'$sort': SON([('_id', 1)])}
             ]
         elif tipo == 'pormes':
@@ -35,7 +35,7 @@ def devolucion():
                 return {'ok': False, 'message': 'Debe ingresar el año en el parámetro -anio-'}, 400
             pipeline = [
                 {'$match': {'anio': anio}},
-                {'$group': {'_id': '$mes', 'total': {'$sum': '$bandejas'}}},
+                {'$group': {'_id': '$mes', 'dato': {'$sum': '$bandejas'}}},
                 {'$sort': SON([('_id', 1)])}
             ]
         elif tipo == 'pordia':
@@ -49,7 +49,7 @@ def devolucion():
                 return {'ok': False, 'message': 'Debe ingresar el año en el parámetro -anio- y el mes en el parámetro -mes-'}, 400
             pipeline = [
                 {'$match': {'anio': anio, 'mes': mes}},
-                {'$group': {'_id': '$dia', 'total': {'$sum': '$bandejas'}}},
+                {'$group': {'_id': '$dia', 'dato': {'$sum': '$bandejas'}}},
                 {'$sort': SON([('_id', 1)])}
             ]
         elif tipo == 'porlocal':
@@ -64,15 +64,15 @@ def devolucion():
                 return {'ok': False, 'message': 'Debe ingresar el año en el parámetro -anio-m el mes en el parámetro -mes- y el día en el parámetro -dia-'}, 400
             pipeline = [
                 {'$match': {'anio': anio, 'mes': mes, 'dia': dia}},
-                {'$group': {'_id': '$local', 'total': {'$sum': '$bandejas'}}},
-                {'$sort': SON([('total', -1)])}
+                {'$group': {'_id': '$local', 'dato': {'$sum': '$bandejas'}}},
+                {'$sort': SON([('dato', -1)])}
             ]
         else:
             return {'ok': False, 'message': 'Debe ingresar una opción válida en el parámetro -tipo-'}, 400
         data = mongo.db.devoluciones.aggregate(pipeline)
         devoluciones = []
         for devolucion in data:
-            devoluciones.append({tipo.replace('por', ''): devolucion['_id'], 'total': devolucion['total']})
+            devoluciones.append({'etiqueta': devolucion['_id'], 'dato': devolucion['dato']})
         return {'ok': True, 'data': devoluciones}, 200
 
 @app.route('/upload', methods=['POST'])
