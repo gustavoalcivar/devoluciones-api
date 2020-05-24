@@ -71,9 +71,11 @@ def devolucion():
             return {'ok': False, 'message': 'Debe ingresar una opción válida en el parámetro -tipo-'}, 400
         data = mongo.db.devoluciones.aggregate(pipeline)
         devoluciones = []
+        total = 0
         for devolucion in data:
             devoluciones.append({'etiqueta': devolucion['_id'], 'dato': devolucion['dato']})
-        return {'ok': True, 'data': devoluciones}, 200
+            total = total + devolucion['dato']
+        return {'ok': True, 'data': devoluciones, 'total': total}, 200
 
 @app.route('/upload', methods=['POST'])
 @jwt_required
