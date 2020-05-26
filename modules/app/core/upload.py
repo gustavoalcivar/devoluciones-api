@@ -32,5 +32,5 @@ def upload_file(request):
 
     makedirs(consts.ubicacion_archivos_subidos, exist_ok=True)
     file.save(join(consts.ubicacion_archivos_subidos, secure_filename(file.filename)))
-    return {'ok': True, 'message': 'Archivo cargado con correctamente'}
+    return {'ok': True, 'message': 'Archivo cargado con correctamente', 'filename': secure_filename(file.filename)}
     
